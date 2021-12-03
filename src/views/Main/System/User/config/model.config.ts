@@ -1,4 +1,4 @@
-import { IForm } from '@/base-ui/form'
+import { IForm } from '@/base-ui/Form'
 
 export const modalConfig: IForm = {
   title: '新建用户',
