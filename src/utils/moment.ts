@@ -1,10 +1,12 @@
 const weeks = ['日', '一', '二', '三', '四', '五', '六']
-const DEFAULT_FORMATSTR = 'YYYY-MM-DD HH:mm:ss'
+const DEFAULT_FORMATS = 'YYYY-MM-DD HH:mm:ss'
 
-const Moment = function (arg: number | string) {
+export type IDateType = Date | number | string
+
+const Moment = (arg: IDateType) => {
   return {
     date: new Date(arg),
-    format(formatStr: string = DEFAULT_FORMATSTR) {
+    format(formatStr: string = DEFAULT_FORMATS) {
       const date = this.date
       const year = date.getFullYear()
       const month = date.getMonth() + 1
@@ -13,6 +15,8 @@ const Moment = function (arg: number | string) {
       const hour = date.getHours()
       const minute = date.getMinutes()
       const second = date.getSeconds()
+
+      // console.log('formatStr :>> ', formatStr)
 
       return formatStr.replace(/Y{2,4}|M{1,2}|D{1,2}|{w{1,4}}|H{1,2}|m{1,2}|s{1,2}/g, match => {
         switch (match) {
