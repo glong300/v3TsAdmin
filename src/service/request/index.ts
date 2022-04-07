@@ -10,25 +10,39 @@ import { ElLoading, ILoadingInstance, ElMessage, Message } from 'element-plus'
 
 import localCache from '@/utils/cache'
 
-const DEAFULT_LOADING = false
+const enum DEAFULT_CONSTANT {
+  DEAFULT_LOADING = 0,
+  DEAFULT_CANCEL_REQUEST = 1
+}
 
 class request {
   private instance: AxiosInstance // 初始化axios
   private interceptors?: IRequestInterceptors // 实例化单独拦截器
+  private cancelRequestMap?: Map<string, () => void>
   private showLoading: boolean // 加载动画状态
   private loading?: ILoadingInstance // 加载动画函数
   private message?: Message // 提示框
+  private repeatRequestCancel?: boolean = true
 
   constructor(config: IRequestConfig) {
     this.instance = axios.create(config) // 初始化axios
-
     this.interceptors = config.interceptors // 初始化单独拦截器
-    this.showLoading = config.showLoading ?? DEAFULT_LOADING // 是否有加载动画
+    this.cancelRequestMap = new Map()
+
+    this.showLoading = config.showLoading ?? Boolean(DEAFULT_CONSTANT.DEAFULT_LOADING) // 是否有加载动画
     this.message = ElMessage // 初始化提示
+    this.repeatRequestCancel =
+      config.repeatRequestCancel ?? Boolean(DEAFULT_CONSTANT.DEAFULT_CANCEL_REQUEST)
 
     // 全局请求拦截
     this.instance.interceptors.request.use(
       config => {
+        // 拦截重复请求
+        if (this.repeatRequestCancel) {
+          this.cancelRequest(config.url as string)
+          this.addCancelRequest(config)
+        }
+
         // 携带token的拦截
         const token = localCache.getCache('token')
 
@@ -89,6 +103,30 @@ class request {
     )
   }
 
+  /**
+   * 添加请求，用url作为请求唯一值
+   * @param {IRequestConfig} config
+   */
+  private addCancelRequest(config: IRequestConfig) {
+    const url = config.url
+    if (url) {
+      config.cancelToken = new axios.CancelToken(c => {
+        this.cancelRequestMap?.set(url, c)
+      })
+    }
+  }
+
+  /**
+   * 删除重复的请求
+   * @param {string} url
+   */
+  private cancelRequest(url: string) {
+    if (this.cancelRequestMap?.has(url)) {
+      this.cancelRequestMap.get(url)!()
+      this.cancelRequestMap.delete(url)
+    }
+  }
+
   request<T = IDataType, D = any>(config: IRequestConfig<T, D>): Promise<T> {
     return new Promise((reslove, reject) => {
       // 请求的单独请求拦截器
@@ -109,7 +147,7 @@ class request {
             res = config.interceptors.responseInterceptor(res)
           }
 
-          this.showLoading = DEAFULT_LOADING
+          this.showLoading = Boolean(DEAFULT_CONSTANT.DEAFULT_LOADING)
 
           reslove(res)
         })
@@ -119,7 +157,7 @@ class request {
             err = config.interceptors.responseInterceptorCatch(err)
           }
 
-          this.showLoading = DEAFULT_LOADING
+          this.showLoading = Boolean(DEAFULT_CONSTANT.DEAFULT_LOADING)
 
           this.message?.error({
             message: err,

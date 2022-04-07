@@ -13,6 +13,7 @@ interface IRequestInterceptors<T = AxiosResponse> {
 interface IRequestConfig<T = AxiosResponse, D = any> extends AxiosRequestConfig<D> {
   interceptors?: IRequestInterceptors<T> // 单独请求拦截
   showLoading?: boolean // 全局加载动画
+  repeatRequestCancel?: boolean
 }
 
 export { IRequestInterceptors, IRequestConfig }
