@@ -14,6 +14,7 @@ interface IIsLoadingName<T = any> {
 // 请求失败的拦截码
 const httpErrorStatusHandle = (error: AxiosError) => {
   const status = error.response?.status
+  console.log('status :>> ', status)
 
   switch (status) {
     case 400:

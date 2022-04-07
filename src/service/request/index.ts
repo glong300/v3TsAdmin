@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosInstance } from 'axios'
 
 // 扩展参数
 import { IRequestConfig, IRequestInterceptors } from './types'
@@ -31,8 +31,9 @@ class request {
       config => {
         // 携带token的拦截
         const token = localCache.getCache('token')
+
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`
+          config.headers!.Authorization = `Bearer ${token}`
         }
 
         // 开启加载动画
@@ -48,6 +49,19 @@ class request {
       }
     )
 
+    // 使用拦截器
+    // 1.从config中取出的拦截器是对应的实例的拦截器
+    // 实例请求拦截
+    this.instance.interceptors.request.use(
+      this.interceptors?.requestInterceptor,
+      this.interceptors?.requestInterceptorCatch
+    )
+    // 实例请求拦截
+    this.instance.interceptors.response.use(
+      this.interceptors?.responseInterceptor,
+      this.interceptors?.responseInterceptorCatch
+    )
+
     // 全局响应拦截
     this.instance.interceptors.response.use(
       config => {
@@ -60,9 +74,10 @@ class request {
           return Promise.reject(msg)
         }
 
-        return config
+        return config.data
       },
       err => {
+        console.log('err :>> ', err)
         // 移除loading动画
         this.loading?.close()
 
@@ -74,7 +89,7 @@ class request {
     )
   }
 
-  request<T extends AxiosResponse<IDataType>>(config: IRequestConfig<T>): Promise<IDataType> {
+  request<T = IDataType, D = any>(config: IRequestConfig<T, D>): Promise<T> {
     return new Promise((reslove, reject) => {
       // 请求的单独请求拦截器
       if (config.interceptors?.requestInterceptor) {
@@ -87,7 +102,7 @@ class request {
       }
 
       this.instance
-        .request<any, T>(config)
+        .request<any, T, D>(config)
         .then(res => {
           // 请求的单独响应拦截器
           if (config.interceptors?.responseInterceptor) {
@@ -96,7 +111,7 @@ class request {
 
           this.showLoading = DEAFULT_LOADING
 
-          reslove(res.data)
+          reslove(res)
         })
         .catch(err => {
           // 请求的单独响应拦截器
@@ -116,20 +131,20 @@ class request {
     })
   }
 
-  get<T extends AxiosResponse<IDataType>>(config: IRequestConfig<T>): Promise<IDataType> {
-    return this.request<T>({ ...config, method: 'GET' })
+  get<T = IDataType, D = any>(config: IRequestConfig<T, D>): Promise<T> {
+    return this.request<T, D>({ ...config, method: 'GET' })
   }
 
-  post<T extends AxiosResponse<IDataType>>(config: IRequestConfig<T>): Promise<IDataType> {
-    return this.request<T>({ ...config, method: 'POST' })
+  post<T = IDataType, D = any>(config: IRequestConfig<T>): Promise<T> {
+    return this.request<T, D>({ ...config, method: 'POST' })
   }
 
-  delete<T extends AxiosResponse<IDataType>>(config: IRequestConfig<T>): Promise<IDataType> {
-    return this.request<T>({ ...config, method: 'DELETE' })
+  delete<T = IDataType, D = any>(config: IRequestConfig<T>): Promise<T> {
+    return this.request<T, D>({ ...config, method: 'DELETE' })
   }
 
-  patch<T extends AxiosResponse<IDataType>>(config: IRequestConfig<T>): Promise<IDataType> {
-    return this.request<T>({ ...config, method: 'PATCH' })
+  patch<T = IDataType, D = any>(config: IRequestConfig<T>): Promise<T> {
+    return this.request<T, D>({ ...config, method: 'PATCH' })
   }
 }
 

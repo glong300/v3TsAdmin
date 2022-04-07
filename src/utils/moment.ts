@@ -1,12 +1,12 @@
 const weeks = ['日', '一', '二', '三', '四', '五', '六']
-const DEFAULT_FORMATS = 'YYYY-MM-DD HH:mm:ss'
+const DEFAULT_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 export type IDateType = Date | number | string
 
-const Moment = (arg: IDateType) => {
+const moment = (arg: IDateType) => {
   return {
     date: new Date(arg),
-    format(formatStr: string = DEFAULT_FORMATS) {
+    format(formatStr: string = DEFAULT_FORMAT) {
       const date = this.date
       const year = date.getFullYear()
       const month = date.getMonth() + 1
@@ -60,4 +60,4 @@ const Moment = (arg: IDateType) => {
   }
 }
 
-export default Moment
+export default moment

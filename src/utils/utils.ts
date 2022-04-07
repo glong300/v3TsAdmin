@@ -71,7 +71,7 @@ export const getUrlKey = (name: string) => {
 
 /**
  * 获取 URL 所有参数
- * @returns {Object} 参数对象
+ * @returns {any} 参数对象
  */
 export const getAllUrlKey = () => {
   const url = location.search //获取url中"?"符后的字串
@@ -111,5 +111,43 @@ export const checkPhone = (mobile: string) => {
  * @param {Date} date 日期
  * @returns {boolean} true为真
  */
-
 export const isWeekDay = (date: Date) => date.getDay() % 6 !== 0
+
+/**
+ * 获取总和、最小值和最大值
+ * @param {Number} arr 数组
+ * @param {String} type 类型 all 数组总和  min 数组最小值  max 数组最大值
+ */
+export const getNum = (arr: number[], type = 'all') => {
+  arr.reduce((sum, current) => {
+    if (type === 'all') {
+      return sum + current
+    }
+
+    if (type === 'min') {
+      return sum < current ? sum : current
+    }
+
+    if (type === 'max') {
+      return sum > current ? sum : current
+    }
+
+    return 0
+  }, 0)
+}
+
+/**
+ * 从数组中过滤出虚假值
+ * @param { Array } arr 数组
+ * @returns {Array} 过滤后的数组
+ */
+export const falsyArray = (arr: any[]) => arr.filter(Boolean)
+
+/**
+ * 删除重复数据
+ * @param array 数组
+ * @returns {any[]} 返回剔除重复的数组
+ */
+export const dedupe = (array: any[]) => {
+  return array.filter((item, idx, arr) => arr.indexOf(item) === idx)
+}
