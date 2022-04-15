@@ -151,3 +151,28 @@ export const falsyArray = (arr: any[]) => arr.filter(Boolean)
 export const dedupe = (array: any[]) => {
   return array.filter((item, idx, arr) => arr.indexOf(item) === idx)
 }
+
+/**
+ * 扁平数据结构转Tree
+ * @param array
+ * @param pid
+ * @returns
+ */
+export const arrayToTree = (array: any[], pid: number) => {
+  const result = [] // 存放结果集
+  const itemMap: any = {} //
+
+  for (const item of array) {
+    const id = item.id
+    const itemPid = item.pid
+
+    if (!itemMap[id]) itemMap[id] = { ...item, children: [] }
+    if (Object.prototype.hasOwnProperty.call(itemMap, itemPid)) {
+      itemMap[itemPid].children.push(itemMap[id])
+    }
+
+    if (itemPid === pid) result.push(itemMap[id])
+  }
+
+  return result
+}
