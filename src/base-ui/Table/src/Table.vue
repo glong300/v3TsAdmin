@@ -1,5 +1,6 @@
 <template>
   <div class="l-table">
+    {{ propList }}
     <div class="header">
       <slot name="header">
         <div class="title">{{ title }}</div>

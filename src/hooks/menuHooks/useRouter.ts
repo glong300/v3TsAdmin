@@ -25,6 +25,7 @@ export function mapMenusToToutes(userMenus: IMenuType[]): RouteRecordRaw[] {
     const store = require('../../router/Main' + key.split('.')[1])
 
     allRoutes.push(store.default)
+    console.log('allRoutes :>> ', allRoutes)
   })
 
   // 递归查找所有符合标准的路由
